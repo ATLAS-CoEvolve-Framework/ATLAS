@@ -1,0 +1,45 @@
+{
+    "M": 2,
+    "N": 1,
+    "epochs": 2,
+    "features": {
+        "learning_rate": 5e-4,
+        "beta1": 0.5,
+        "beta2": 0.5
+    },
+    "mutator": {
+        "learning_rate": [
+            -2e-4,
+            2e-4
+        ],
+        "beta1": [
+            -0.2,
+            0.2
+        ],
+        "beta2": [
+            -0.2,
+            0.2
+        ]
+    },
+    "limits": {
+        "learning_rate": [
+            0,
+            1e-2
+        ],
+        "beta1": [
+            0.01,
+            1
+        ],
+        "beta2": [
+            0.01,
+            1
+        ]
+    },
+    "generations": 100,
+    "dataset": "xyz",
+    "disc_metric":"loss",
+    "gen_metric":"loss",
+    "files":[],
+    "gen_name":"mnist_gen.json",
+    "disc_name":"mnist_disc.json"
+}
