@@ -429,8 +429,18 @@ def boot_node(gpu_num):
 
         criterion = torch.nn.BCELoss()
         step = 0
-        D =  torch.jit.load(disc_name, map_location=device)
-        G =  torch.jit.load(gen_name, map_location=device)
+
+
+        G = get_generative()
+        G.load_state_dict(torch.load(gen_name), strict=False)
+
+        D = get_discriminative()
+        D.load_state_dict(torch.load(disc_name), strict=False)
+
+
+
+        # D =  torch.jit.load(disc_name, map_location=device)
+        # G =  torch.jit.load(gen_name, map_location=device)
                    
 
 
@@ -546,8 +556,11 @@ def boot_node(gpu_num):
                     f"{disc_name} Fitness improved from {initial_disc_fitness} to {D_avg_loss}")
                 initial_disc_fitness = D_avg_loss
                 payload[f"{disc_name.split('.')[0]}"] ={"loss":f"{D_avg_loss}"}
-                model_scripted = torch.jit.script(D)
-                model_scripted.save(disc_name)
+
+                torch.save(D.state_dict(), disc_name)
+
+                # model_scripted = torch.jit.script(D)
+                # model_scripted.save(disc_name)
                 upload_file(disc_name)
             else:
                 print(f"{disc_name} ignored")
@@ -557,8 +570,11 @@ def boot_node(gpu_num):
                 print(f"{gen_name} Fitness improved from {initial_gen_fitness} to {G_avg_loss}")
                 initial_gen_fitness = G_avg_loss
                 payload[f"{gen_name.split('.')[0]}"] = {"loss": f"{G_avg_loss}"}
-                model_scripted = torch.jit.script(G)
-                model_scripted.save(gen_name)
+
+                torch.save(G.state_dict(), gen_name)
+
+                # model_scripted = torch.jit.script(G)
+                # model_scripted.save(gen_name)
                 upload_file(gen_name)
             else:
                 print(f"{gen_name} ignored")
@@ -670,16 +686,21 @@ def boot_node(gpu_num):
 
                 if (model == 'generator'):
                     gen = get_generative()
-                    model_scripted = torch.jit.script(gen)
-                    del gen
-                    model_scripted.save(f"{name}{ext}")
+
+                    torch.save(gen.state_dict(),f"{name}{ext}")
+                    # model_scripted = torch.jit.script(gen)
+                    # del gen
+                    # model_scripted.save(f"{name}{ext}")
                     upload_file(f"{name}{ext}")
                     print(f"Created and uploaded {name}{ext}")
                 elif (model == 'discriminator'):
                     disc = get_discriminative()
-                    model_scripted = torch.jit.script(disc)
-                    del disc
-                    model_scripted.save(f"{name}{ext}")
+
+                    torch.save(disc.state_dict(),f"{name}{ext}")
+
+                    # model_scripted = torch.jit.script(disc)
+                    # del disc
+                    # model_scripted.save(f"{name}{ext}")
                     upload_file(f"{name}{ext}")
                     print(f"Created and uploaded {name}{ext}")
 
