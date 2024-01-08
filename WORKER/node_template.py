@@ -433,9 +433,11 @@ def boot_node(gpu_num):
 
         G = get_generative()
         G.load_state_dict(torch.load(gen_name, map_location=device), strict=False)   
+        G.to(device)
 
         D = get_discriminative()
         D.load_state_dict(torch.load(disc_name, map_location=device), strict=False)
+        D.to(device)
 
 
 
