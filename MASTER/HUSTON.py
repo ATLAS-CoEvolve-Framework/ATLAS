@@ -73,10 +73,32 @@ def remove_from(script: list[str], item):
 
 def logger():
     global evolver
-    with open(f'{master_path}/log.txt', 'a') as f1:
-        f1.write(json.dumps({"evo_space": evolver.gans, "subspace_d": evolver.subspace_d,
-                 "subspace_g": evolver.subspace_g, "current_cell": evolver.curr_cell}))
-        f1.write('\n,\n')
+    with open(f'{master_path}/log.json', 'a') as f1:
+        # 1. Load existing data (if any)
+        existing_data = []
+        try:
+            with open(f'{master_path}/log.json', 'r') as f2:
+                existing_data = json.load(f2)
+        except FileNotFoundError:
+            pass 
+
+        new_data = {
+            "evo_space": evolver.gans,
+            "subspace_d": evolver.subspace_d,
+            "subspace_g": evolver.subspace_g,
+            "current_cell": evolver.curr_cell
+        }
+        existing_data.append(new_data)
+
+        json.dump(existing_data, f1)  
+
+
+
+
+    # with open(f'{master_path}/log.txt', 'a') as f1:
+    #     f1.write(json.dumps({"evo_space": evolver.gans, "subspace_d": evolver.subspace_d,
+    #              "subspace_g": evolver.subspace_g, "current_cell": evolver.curr_cell}))
+    #     f1.write('\n,\n')
 
 
 
