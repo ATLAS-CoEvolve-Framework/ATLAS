@@ -3,8 +3,10 @@
 
 
 
+import os
+import shutil
 from routine import Evolve, WAIT
-from connection import ConnectionManager, master_path, conf
+from connection import ConnectionManager, download_files_parallel, master_path, conf, upload_file
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, Request
 import asyncio
 import json
@@ -30,7 +32,7 @@ restore = False
 script = []
 remain = []
 minimum_nodes = 1
-
+counter = 0
 
 
 
@@ -66,7 +68,19 @@ def remove_from(script: list[str], item):
 
 
 
+def blob_snapshot(snap_name: str, evolver: Evolve, subspace=False):
+    files =[]
+    files+=[x+evolver.EXT for x in evolver.gans.keys()]
 
+    if subspace:
+        files+=[x+'_copy'+evolver.EXT for x in evolver.subspace_d.keys()]
+        files+=[x+'_copy'+evolver.EXT for x in evolver.subspace_g.keys()]
+
+    download_files_parallel(files, base_path=snap_name)
+    shutil.make_archive(snap_name, 'zip', snap_name)
+    upload_file(snap_name+'.zip')
+    shutil.rmtree(snap_name)
+    os.remove(snap_name+'.zip')
 
 
 
@@ -74,7 +88,6 @@ def remove_from(script: list[str], item):
 def logger():
     global evolver
     with open(f'{master_path}/log.json', 'a') as f1:
-        # 1. Load existing data (if any)
         existing_data = []
         try:
             with open(f'{master_path}/log.json', 'r') as f2:
@@ -92,7 +105,9 @@ def logger():
 
         json.dump(existing_data, f1)  
 
-
+    snap_name = f'snapshot_{counter}'
+    print("Taking blob snapshot", snap_name)
+    blob_snapshot(snap_name,evolver)
 
 
     # with open(f'{master_path}/log.txt', 'a') as f1:

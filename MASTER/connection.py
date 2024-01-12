@@ -1,8 +1,11 @@
-from fastapi import WebSocket, WebSocketDisconnect
+from fastapi import WebSocket
 from typing import List
 import json
 import time
 from datetime import datetime
+import os
+from azure.storage.blob import BlobServiceClient
+from azure.identity import DefaultAzureCredential
 
 
 master_path = 'D:\FILES\OFFICIAL\FINAL\DistributedCompute\MASTER'
@@ -17,6 +20,52 @@ with open(f'{master_path}/container_cred.json') as secret:
     container_cred = json.load(secret)
     container_config = {'type': "container_cred",
                         "args": container_cred}
+
+default_credential = DefaultAzureCredential()
+connect_str = container_cred['connect_str']
+container_name = container_cred['container_name']
+blob_service_client = BlobServiceClient.from_connection_string(connect_str)
+container_client = blob_service_client.get_container_client(container=container_name)
+
+
+
+import time, os, threading
+def upload_file(path):
+    print(f"Starting upload of {path}")
+    begin = time.time()
+    blob_client = blob_service_client.get_blob_client(
+        container=container_name, blob=path)
+    with open(path, 'rb') as file:
+        blob_client.upload_blob(file, overwrite=True, connection_timeout=600)
+    print(f"Upload Complete {path} in {(time.time()-begin):.2f}s")
+
+
+def download_file(path, redownload=True, base_path = ''):
+    if (not redownload and os.path.exists(path)):
+        print('File Exists')
+        return
+    print(f"Starting download of {path}")
+    begin = time.time()
+    if not os.path.exists(base_path):
+        os.mkdir(base_path)
+    with open(os.path.join(base_path,path), "wb") as download_file:
+        download_file.write(container_client.download_blob(path).readall())
+        print(f"Download of {path} complete in {(time.time()-begin):.2f}s")
+
+
+def download_files_parallel(paths: list, redownload=True, base_path=''):
+    if not os.path.exists(base_path):
+        os.mkdir(base_path)
+    threads = []
+    for path in paths:
+        thread = threading.Thread(target=download_file, args=(path, redownload, base_path))
+        threads.append(thread)
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+
 
 
 # NETWORK ARCH

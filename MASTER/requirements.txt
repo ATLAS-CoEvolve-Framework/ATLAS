@@ -1,0 +1,10 @@
+fastapi
+hypercorn
+nest-asyncio
+websockets
+hypercorn
+azure-storage-blob
+azure-identity
+tqdm
+retry
+websocket_client

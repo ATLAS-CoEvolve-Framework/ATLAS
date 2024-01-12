@@ -8,13 +8,13 @@ from typing import Callable, Literal
 
 from sympy import Union
 WAIT = {"type":"WAIT"}
-ext = '.pt' 
 
 class Evolve:
     def __init__(self, M, N, dataset, features={"learning_rate": 5e-4, "beta1": 0.5, 'beta2': 0.5}, epochs=5, mutator={'learning_rate': (-1e-4, 1e-4), 'beta1': (-0.1, 0.1), 'beta2': (-0.1, 0.1)}, limits={'learning_rate': (0, 1e-2), 'beta1': (0.1, 1), 'beta2': (0.1, 1)},
-                 gen_metric='loss', disc_metric='loss',gen_compare=operator.lt, disc_compare=operator.lt, gen_tournamet = min, disc_tournamet = min):
+                 gen_metric='loss', disc_metric='loss',gen_compare=operator.lt, disc_compare=operator.lt, gen_tournamet = min, disc_tournamet = min, EXT='.pt'):
         self.M = M
         self.N = N
+        self.EXT=EXT
         self.epochs = epochs
         self.features = features
         self.script = []
@@ -84,8 +84,8 @@ class Evolve:
         for coms in range(0, len(self.names), 2):
             jobs.append({
             "type":"train",
-            "generator": f"{self.names[coms]}{ext}",
-            "discriminator" : f"{self.names[coms+1]}{ext}",
+            "generator": f"{self.names[coms]}{self.EXT}",
+            "discriminator" : f"{self.names[coms+1]}{self.EXT}",
             "gen_lr":self.gans[self.names[coms]]["features"]['learning_rate'],
             "gen_beta1":self.gans[self.names[coms]]["features"]['beta1'],
             "gen_beta2":self.gans[self.names[coms]]["features"]['beta2'],
@@ -145,8 +145,8 @@ class Evolve:
 
             jobs.append({
             "type":"train",
-            "generator": f"{best_gen}{ext}",
-            "discriminator" : f"disc_{x[0]}_{x[1]}{ext}",
+            "generator": f"{best_gen}{self.EXT}",
+            "discriminator" : f"disc_{x[0]}_{x[1]}{self.EXT}",
             "gen_lr":self.subspace_g[best_gen]["features"]["learning_rate"],
             "gen_beta1":self.subspace_g[best_gen]["features"]["beta1"],
             "gen_beta2":self.subspace_g[best_gen]["features"]["beta2"],
@@ -182,8 +182,8 @@ class Evolve:
 
             jobs.append({
             "type":"train",
-            "generator": f"gen_{x[0]}_{x[1]}{ext}",
-            "discriminator" : f"{best_disc}{ext}",
+            "generator": f"gen_{x[0]}_{x[1]}{self.EXT}",
+            "discriminator" : f"{best_disc}{self.EXT}",
             "gen_lr":self.subspace_g[f"gen_{x[0]}_{x[1]}"]["features"]['learning_rate'],
             "gen_beta1":self.subspace_g[f"gen_{x[0]}_{x[1]}"]["features"]['beta1'],
             "gen_beta2":self.subspace_g[f"gen_{x[0]}_{x[1]}"]["features"]['beta2'],

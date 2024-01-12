@@ -1,0 +1,3 @@
+*.ipynb
+MASTER/container_cred.json
+*.pyc
