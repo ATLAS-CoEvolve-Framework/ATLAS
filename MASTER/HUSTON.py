@@ -86,13 +86,13 @@ def blob_snapshot(snap_name: str, evolver: Evolve, subspace=False):
 
 
 def logger():
-    global evolver
+    global evolver, counter
     with open(f'{master_path}/log.json', 'a') as f1:
         existing_data = []
         try:
             with open(f'{master_path}/log.json', 'r') as f2:
                 existing_data = json.load(f2)
-        except FileNotFoundError:
+        except:
             pass 
 
         new_data = {
@@ -106,6 +106,7 @@ def logger():
         json.dump(existing_data, f1)  
 
     snap_name = f'snapshot_{counter}'
+    counter+=1
     print("Taking blob snapshot", snap_name)
     blob_snapshot(snap_name,evolver)
 
